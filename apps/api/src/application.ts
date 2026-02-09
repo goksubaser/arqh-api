@@ -73,8 +73,7 @@ export class Application {
     const routes: Array<Route> = [
       healthCheck,
       staticRoutes,
-      // TODO: Uncomment this when the domain routes are ready
-      // ...domainRoutes,
+      ...domainRoutes,
     ];
     routes.forEach((route) => route(this.server));
   }
