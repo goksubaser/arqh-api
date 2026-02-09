@@ -1,32 +1,43 @@
 # TS - Fastify - Mongoose Boilerplate
 
-TypeScript + Fastify + Mongoose backend service.
+Monorepo with TypeScript + Fastify + Mongoose backend and Next.js frontend.
+
+## Structure
+
+```
+├── apps/
+│   ├── api/     # Fastify backend
+│   └── web/     # Next.js frontend
+├── package.json # Root with npm workspaces
+└── ...
+```
 
 ## Setup
 
-1. Install dependencies:
+1. Install dependencies (from root):
 ```bash
 npm install
 ```
 
-2. Set environment variables (development):
-Create a file named `development.env` in the project root with your development environment variables. For example:
+2. Set environment variables for the API:
+Create a file named `development.env` in `apps/api/` with your development environment variables. For example:
 
 ```
 DB_URL=mongodb://localhost:27017,localhost:27018,localhost:27019/[db-name]
 ```
 
-Adjust values as needed for your local setup.
+## Development
 
-
-3. Run in development:
+Run individually:
 ```bash
-npm run dev
+npm run dev:api   # Backend only (http://localhost:5052)
+npm run dev:web   # Frontend only (http://localhost:3000)
 ```
 
-4. Build for production:
+## Production
+
 ```bash
 npm run build
-npm start
+npm run start:api
+npm run start:web
 ```
-
