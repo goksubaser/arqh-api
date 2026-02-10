@@ -23,7 +23,7 @@ npm install
 Create a file named `development.env` in `apps/api/` with your development environment variables. For example:
 
 ```
-DB_URL=mongodb://localhost:27017,localhost:27018,localhost:27019/[db-name]
+DB_URL=mongodb://localhost:27017/app
 ```
 
 ## Development

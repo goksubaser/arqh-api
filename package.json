@@ -11,6 +11,9 @@
   "scripts": {
     "dev:api": "npm run dev -w api",
     "dev:web": "npm run dev -w web",
+    "docker": "docker compose up --build",
+    "docker:db": "docker compose up -d mongo redis",
+    "docker:down": "docker compose down -v",
     "build": "npm run build --workspaces --if-present",
     "build:api": "npm run build -w api",
     "build:web": "npm run build -w web",
