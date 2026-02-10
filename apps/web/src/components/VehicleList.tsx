@@ -3,7 +3,7 @@
 import { FunctionComponent, useCallback } from "react";
 import type { Vehicle as VehicleType } from "types";
 import { useGlobalState, ActionKind } from "../../hocs/WithGlobalState";
-import { DRAG_TYPE_ORDER } from "./OrderList";
+import { DRAG_TYPE_ORDER, Order } from "./OrderList";
 
 const Vehicle: FunctionComponent<{ vehicle: VehicleType }> = ({ vehicle }) => {
   const { state, dispatch } = useGlobalState();
@@ -39,29 +39,34 @@ const Vehicle: FunctionComponent<{ vehicle: VehicleType }> = ({ vehicle }) => {
 
       const previousAssignments = state.assignments;
       const nextAssignments = (() => {
-        const existing = previousAssignments.find((a) => a.vehicle_id === vehicle.id);
+        const cleanedAssignments = previousAssignments.map(a => ({
+          ...a,
+          route: a.route.filter(id => id !== orderId)
+        }));
+
+        const existing = cleanedAssignments.find((a) => a.vehicle_id === vehicle.id);
         if (existing) {
-          return previousAssignments.map((a) =>
+          return cleanedAssignments.map((a) =>
             a.vehicle_id === vehicle.id
               ? { ...a, route: [...a.route, orderId] }
               : a
           );
         }
-        return [...previousAssignments, { vehicle_id: vehicle.id, route: [orderId] }];
+        return [...cleanedAssignments, { vehicle_id: vehicle.id, route: [orderId] }];
       })();
 
       dispatch({ type: ActionKind.SetAssignments, payload: nextAssignments });
 
-      // try {
-      //   const res = await fetch("/api/assign", {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify({ orderId, vehicleId: vehicle.id }),
-      //   });
-      //   if (!res.ok) throw new Error("Assign failed");
-      // } catch {
-      //   dispatch({ type: ActionKind.SetAssignments, payload: previousAssignments });
-      // }
+      try {
+        const res = await fetch("/api/assign", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId, vehicleId: vehicle.id }),
+        });
+        if (!res.ok) throw new Error("Assign failed");
+      } catch {
+        dispatch({ type: ActionKind.SetAssignments, payload: previousAssignments });
+      }
     },
     [vehicle.id, state.assignments, dispatch]
   );
@@ -95,20 +100,7 @@ const Vehicle: FunctionComponent<{ vehicle: VehicleType }> = ({ vehicle }) => {
           </p>
         ) : (
           orders.map((order) => (
-            <div
-              key={order.id}
-              className="rounded border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm dark:border-zinc-600 dark:bg-zinc-800"
-            >
-              <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                {order.id}
-              </span>
-              <span className="ml-2 text-zinc-500 dark:text-zinc-400">
-                {order.weight_kg} kg
-              </span>
-              <span className="ml-2 text-zinc-500 dark:text-zinc-400">
-                {order.location.lat.toFixed(4)}, {order.location.lng.toFixed(4)}
-              </span>
-            </div>
+            <Order key={order.id} order={order} />
           ))
         )}
       </div>

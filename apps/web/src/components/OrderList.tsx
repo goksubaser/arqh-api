@@ -1,20 +1,18 @@
 "use client";
 
-import { FunctionComponent } from "react";
-import { useGlobalState } from "../../hocs/WithGlobalState";
+import { FunctionComponent, useCallback, useState } from "react";
+import { useGlobalState, ActionKind } from "../../hocs/WithGlobalState";
 import { Order as OrderType } from "types";
 
 const DRAG_TYPE_ORDER = "application/x-dispatch-order";
 
-const Order: FunctionComponent<{ order: OrderType }> = ({ order }) => {
+export const Order: FunctionComponent<{ order: OrderType }> = ({ order }) => {
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData(DRAG_TYPE_ORDER, JSON.stringify(order));
     e.dataTransfer.effectAllowed = "move";
   };
 
   const handleDragEnd = (e: React.DragEvent) => {
-    // If dropped outside a valid drop target, browser keeps source in place.
-    // No x/y tracking; we only remove from list when a future vehicle column drop handler runs.
     e.dataTransfer.clearData();
   };
 
@@ -45,7 +43,59 @@ const Order: FunctionComponent<{ order: OrderType }> = ({ order }) => {
 export { DRAG_TYPE_ORDER };
 
 export const OrderList: FunctionComponent = () => {
-  const { state } = useGlobalState();
+  const { state, dispatch } = useGlobalState();
+  const [dropTargetActive, setDropTargetActive] = useState(false);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    if (!e.dataTransfer.types.includes(DRAG_TYPE_ORDER)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDropTargetActive(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDropTargetActive(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      setDropTargetActive(false);
+
+      const raw = e.dataTransfer.getData(DRAG_TYPE_ORDER);
+      if (!raw) return;
+      let orderId: string;
+      try {
+        const order = JSON.parse(raw);
+        orderId = order?.id;
+      } catch {
+        return;
+      }
+      if (!orderId) return;
+
+      const previousAssignments = state.assignments;
+      const nextAssignments = state.assignments.map((a) => ({
+        ...a,
+        route: a.route.filter((id) => id !== orderId),
+      }));
+
+      dispatch({ type: ActionKind.SetAssignments, payload: nextAssignments });
+
+      try {
+        const res = await fetch("/api/assign", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId, vehicleId: "" }),
+        });
+        if (!res.ok) throw new Error("Unassign failed");
+      } catch {
+        dispatch({ type: ActionKind.SetAssignments, payload: previousAssignments });
+      }
+    },
+    [state.assignments, dispatch]
+  );
 
   return (
     <aside className="flex h-full w-72 shrink-0 flex-col border-r border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50">
@@ -57,7 +107,12 @@ export const OrderList: FunctionComponent = () => {
           {state.unassignedOrders.length} order{state.unassignedOrders.length !== 1 ? "s" : ""}
         </p>
       </header>
-      <ul className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2">
+      <ul
+        className={`flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2 transition-colors ${dropTargetActive ? "ring-2 ring-inset ring-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/20" : ""}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         {state.unassignedOrders.map((order) => (
           <li key={order.id}>
             <Order order={order} />
