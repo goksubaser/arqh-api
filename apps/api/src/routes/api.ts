@@ -26,9 +26,18 @@ const apiRoutes: FastifyPluginAsync = async (server) => {
   server.post("/assign", async (request, reply) => {
     const body = validateRequest(apiSchemas.postAssign.body, request.body, reply);
     if (body === null) return;
-    // TODO: implement - update Redis
-    const result = validateResponse(apiSchemas.postAssign.response[200], {});
-    return reply.code(200).send(result);
+    const fastifyServer = request.server as FastifyServer;
+    const result = await fastifyServer.solutionManager.assignOrder(fastifyServer.redis, body);
+    if (result.ok) {
+      const response = validateResponse(apiSchemas.postAssign.response[200], {});
+      return reply.code(200).send(response);
+    }
+    const { statusCode, error } = result;
+    const payload =
+      result.statusCode === 400 && ("orderId" in result || "vehicleId" in result)
+        ? { error, ...("orderId" in result && { orderId: result.orderId }), ...("vehicleId" in result && { vehicleId: result.vehicleId }) }
+        : { error };
+    return reply.code(statusCode).send(payload);
   });
 
   server.post("/optimize", async (request, reply) => {

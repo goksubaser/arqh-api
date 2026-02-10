@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import Redis from "ioredis";
 import VehicleManager from "../domain/vehicle/manager";
+import SolutionManager from "../domain/solution/manager";
 
 export interface ServerConfig {
   NODE_ENV: string;
@@ -15,4 +16,5 @@ export interface FastifyServer
   upAndRunning: boolean;
   redis: Redis;
   vehicleManager: VehicleManager;
+  solutionManager: SolutionManager;
 }
