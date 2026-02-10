@@ -1,6 +1,6 @@
 
 import { FastifyServer } from "../../interface/server";
-import { Vehicle } from "./model";
+import { Vehicle } from "types";
 
 export default function routes(server: FastifyServer) {
   server.get<{

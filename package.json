@@ -5,7 +5,8 @@
   "description": "Monorepo with Fastify API and Next.js frontend",
   "workspaces": [
     "apps/api",
-    "apps/web"
+    "apps/web",
+    "packages/types"
   ],
   "scripts": {
     "dev:api": "npm run dev -w api",

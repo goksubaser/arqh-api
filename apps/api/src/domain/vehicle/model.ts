@@ -1,8 +1,5 @@
 import { Schema, model } from "mongoose";
-
-export interface Vehicle {
-  name: string;
-}
+import { Vehicle } from "types";
 
 const VehicleSchema = new Schema<Vehicle>(
   {

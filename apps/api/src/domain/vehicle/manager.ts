@@ -1,7 +1,7 @@
 import { Manager } from "../../manager";
 import { Logger } from "../../interface/logger";
 import { inject, injectable } from "tsyringe";
-import { Vehicle } from "./model";
+import { Vehicle } from "types";
 import { VehicleService } from "./service";
 
 @injectable()

@@ -1,5 +1,6 @@
 import { injectable } from "tsyringe";
-import { Vehicle, VehicleModel } from "./model";
+import { Vehicle } from "types";
+import { VehicleModel } from "./model";
 import { Service } from "../../service";
 
 @injectable()
