@@ -34,6 +34,18 @@ npm run dev:api   # Backend only (http://localhost:5052)
 npm run dev:web   # Frontend only (http://localhost:3000)
 ```
 
+## Docker
+
+Start MongoDB, Redis, and API with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+- API: http://localhost:5052
+- MongoDB: localhost:27017
+- Redis: localhost:6379
+
 ## Production
 
 ```bash
