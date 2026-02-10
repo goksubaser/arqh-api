@@ -1,0 +1,10 @@
+[
+  { "id": "o_101", "weight_kg": 50, "location": { "lat": 40.7200, "lng": -74.0100 }, "service_time_min": 15 },
+  { "id": "o_102", "weight_kg": 200, "location": { "lat": 40.7300, "lng": -74.0200 }, "service_time_min": 30 },
+  { "id": "o_103", "weight_kg": 10, "location": { "lat": 40.7400, "lng": -73.9900 }, "service_time_min": 5 },
+  { "id": "o_104", "weight_kg": 120, "location": { "lat": 40.7500, "lng": -73.9800 }, "service_time_min": 20 },
+  { "id": "o_105", "weight_kg": 300, "location": { "lat": 40.7600, "lng": -73.9700 }, "service_time_min": 45 },
+  { "id": "o_106", "weight_kg": 50, "location": { "lat": 40.7700, "lng": -73.9600 }, "service_time_min": 10 },
+  { "id": "o_107", "weight_kg": 15, "location": { "lat": 40.7800, "lng": -73.9500 }, "service_time_min": 10 },
+  { "id": "o_108", "weight_kg": 80, "location": { "lat": 40.7900, "lng": -73.9400 }, "service_time_min": 25 }
+]

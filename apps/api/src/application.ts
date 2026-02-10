@@ -11,6 +11,7 @@ import { decorateManagers } from "./ioc";
 
 import { healthCheck } from "./routes/health-check";
 import { staticRoutes } from "./routes/static";
+import { seedMongo, hydrateRedis } from "./hydration";
 
 async function connectWithRetry(dbUrl: string): Promise<typeof Mongoose> {
   const maxRetries = 10;
@@ -100,6 +101,10 @@ export class Application {
     await this.server.ready();
     await this.connect();
     this.server.log.info("connected to db");
+    await seedMongo();
+    this.server.log.info("seeded mongo");
+    await hydrateRedis(this.server.redis);
+    this.server.log.info("hydrated redis");
   }
 
   public async run() {

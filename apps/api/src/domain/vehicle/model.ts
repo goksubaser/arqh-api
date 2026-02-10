@@ -3,11 +3,12 @@ import { Vehicle } from "types";
 
 const VehicleSchema = new Schema<Vehicle>(
   {
-    name: {
-      type: String,
-      required: [true, "Please provide a name for this brand."],
-      maxlength: [100, "Name cannot be more than 100 characters"],
-      unique: true,
+    id: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
+    capacity_kg: { type: Number, required: true },
+    start_location: {
+      lat: { type: Number, required: true },
+      lng: { type: Number, required: true },
     },
   },
   { timestamps: true },

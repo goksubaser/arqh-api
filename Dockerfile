@@ -7,6 +7,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY packages ./packages
 COPY apps ./apps
+COPY data ./data
 
 # Install all dependencies (workspace hoisting)
 RUN npm ci
@@ -27,6 +28,7 @@ COPY --from=builder /app/packages/types/package.json packages/types/package.json
 COPY --from=builder /app/apps/api/dist apps/api/dist
 COPY --from=builder /app/apps/api/package.json apps/api/package.json
 COPY --from=builder /app/apps/api/public apps/api/public
+COPY --from=builder /app/data /app/data
 
 ENV NODE_ENV=production
 
