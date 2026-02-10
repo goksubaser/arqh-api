@@ -1,12 +1,19 @@
 import { FastifyServer } from "../../interface/server";
 import { vehicleSchema, vehicleIdParamSchema, vehicleListSchema, emptyResponseSchema } from "../../schemas";
 import { validateRequest, validateResponse } from "../../validation/validate";
+import { REDIS_VEHICLES_KEY } from "../../hydration";
 
 export default function routes(server: FastifyServer) {
-  server.get("/vehicles", async (_request, reply) => {
-    // TODO: implement
-    const result = validateResponse(vehicleListSchema, []);
-    return reply.code(200).send(result);
+  server.get("/vehicles", async (request, reply) => {
+    try {
+      const raw = await server.redis.get(REDIS_VEHICLES_KEY);
+      const data = raw ? JSON.parse(raw) : [];
+      const result = validateResponse(vehicleListSchema, data);
+      return reply.code(200).send(result);
+    } catch (err) {
+      server.log.error(err);
+      return reply.code(500).send({ error: "Failed to read vehicles" });
+    }
   });
 
   server.post("/vehicles", async (request, reply) => {

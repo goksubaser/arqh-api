@@ -1,12 +1,19 @@
 import { FastifyServer } from "../../interface/server";
 import { orderSchema, orderIdParamSchema, orderListSchema, emptyResponseSchema } from "../../schemas";
 import { validateRequest, validateResponse } from "../../validation/validate";
+import { REDIS_ORDERS_KEY } from "../../hydration";
 
 export default function routes(server: FastifyServer) {
-  server.get("/orders", async (_request, reply) => {
-    // TODO: implement
-    const result = validateResponse(orderListSchema, []);
-    return reply.code(200).send(result);
+  server.get("/orders", async (request, reply) => {
+    try {
+      const raw = await server.redis.get(REDIS_ORDERS_KEY);
+      const data = raw ? JSON.parse(raw) : [];
+      const result = validateResponse(orderListSchema, data);
+      return reply.code(200).send(result);
+    } catch (err) {
+      server.log.error(err);
+      return reply.code(500).send({ error: "Failed to read orders" });
+    }
   });
 
   server.post("/orders", async (request, reply) => {

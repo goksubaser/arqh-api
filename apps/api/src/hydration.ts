@@ -6,7 +6,9 @@ import { SolutionModel } from "./domain/solution/model";
 import { Solution } from "types";
 import type { Redis } from "ioredis";
 
-const REDIS_SOLUTION_KEY = "dispatch:solution";
+export const REDIS_SOLUTION_KEY = "dispatch:solution";
+export const REDIS_VEHICLES_KEY = "dispatch:vehicles";
+export const REDIS_ORDERS_KEY = "dispatch:orders";
 
 function getDataPath(filename: string): string {
   return path.join(__dirname, "../../../data", filename);
@@ -32,8 +34,13 @@ export async function seedMongo(): Promise<void> {
 
 export async function hydrateRedis(redis: Redis): Promise<void> {
   const latest = await SolutionModel.findOne().sort({ updatedAt: -1 });
+  const vehicles = await VehicleModel.find();
+  const orders = await OrderModel.find();
+
   const solution: Solution = latest
     ? { assignments: latest.assignments }
     : { assignments: [] };
   await redis.set(REDIS_SOLUTION_KEY, JSON.stringify(solution));
+  await redis.set(REDIS_VEHICLES_KEY, JSON.stringify(vehicles));
+  await redis.set(REDIS_ORDERS_KEY, JSON.stringify(orders));
 }
