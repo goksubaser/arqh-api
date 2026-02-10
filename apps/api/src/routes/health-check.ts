@@ -8,17 +8,14 @@ export const healthCheck = (server: FastifyServer) => {
         response: {
           200: {
             type: "object",
-            properties: {
-              message: { type: "string" },
-              redis: { type: "string" },
-            },
+            properties: { message: { type: "string" }, redis: { type: "string" } },
           },
         },
       },
     },
-    async (request, reply) => {
+    async (_request, reply) => {
       const redisStatus = await server.redis.ping().then(() => "ok").catch(() => "error");
-      reply.code(200).send({ message: "running", redis: redisStatus });
+      return reply.code(200).send({ message: "running", redis: redisStatus });
     }
   );
 
@@ -27,30 +24,16 @@ export const healthCheck = (server: FastifyServer) => {
     {
       schema: {
         response: {
-          200: {
-            type: "object",
-            properties: {
-              message: {
-                type: "string",
-              },
-            },
-          },
-          503: {
-            type: "object",
-            properties: {
-              message: {
-                type: "string",
-              },
-            },
-          },
+          200: { type: "object", properties: { message: { type: "string" } } },
+          503: { type: "object", properties: { message: { type: "string" } } },
         },
       },
     },
-    (request, reply) => {
+    (_request, reply) => {
       if (server.upAndRunning) {
         return reply.code(200).send({ message: "up and running" });
       }
-      reply.code(503).send({ message: "not yet" });
+      return reply.code(503).send({ message: "not yet" });
     }
   );
 };

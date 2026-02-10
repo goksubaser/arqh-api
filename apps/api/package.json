@@ -21,7 +21,8 @@
     "mongoose": "^8.0.3",
     "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.8.0",
-    "types": "*"
+    "types": "*",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",

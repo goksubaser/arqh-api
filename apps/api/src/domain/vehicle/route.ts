@@ -1,49 +1,37 @@
-
 import { FastifyServer } from "../../interface/server";
-import { Vehicle } from "types";
+import { vehicleSchema, vehicleIdParamSchema, vehicleListSchema, emptyResponseSchema } from "../../schemas";
+import { validateRequest, validateResponse } from "../../validation/validate";
 
 export default function routes(server: FastifyServer) {
-  server.get<{
-    Querystring: { vehicleId?: string };
-  }>(
-    "/vehicles",
-    async (request, reply) => {
-      try {
-        const { vehicleId } = request.query;
-        
-        const filter: any = {};
-        if (vehicleId) {
-          const vehicleIds = vehicleId.split(",").map((id) => id.trim()).filter(Boolean);
-          if (vehicleIds.length > 0) {
-            filter.vehicle = { $in: vehicleIds };
-          }
-        }
+  server.get("/vehicles", async (_request, reply) => {
+    // TODO: implement
+    const result = validateResponse(vehicleListSchema, []);
+    return reply.code(200).send(result);
+  });
 
-        const vehicles = await server.vehicleManager.find(filter);
-        return reply.code(200).send(vehicles);
-      } catch (error) {
-        server.log.error({ action: "error_while_fetching_vehicles", error });
-        return reply.code(500).send({});
-      }
-    }
-  );
+  server.post("/vehicles", async (request, reply) => {
+    const body = validateRequest(vehicleSchema, request.body, reply);
+    if (body === null) return;
+    // TODO: implement
+    const result = validateResponse(vehicleSchema, body);
+    return reply.code(201).send(result);
+  });
 
-  server.post<{
-    Body: Vehicle;
-  }>(
-    "/vehicles",
-    async (request, reply) => {
-      try {
-        const { name } = request.body;
+  server.put("/vehicles/:id", async (request, reply) => {
+    const params = validateRequest(vehicleIdParamSchema, request.params, reply);
+    if (params === null) return;
+    const body = validateRequest(vehicleSchema, request.body, reply);
+    if (body === null) return;
+    // TODO: implement
+    const result = validateResponse(vehicleSchema, body);
+    return reply.code(200).send(result);
+  });
 
-        const vehicle = await server.vehicleManager.create({
-          name,
-        });
-
-        return reply.code(201).send(vehicle);
-      } catch (error) {
-        server.log.error({ action: "error_while_creating_vehicle", error });
-        return reply.code(500).send({});
-      }
+  server.delete("/vehicles/:id", async (request, reply) => {
+    const params = validateRequest(vehicleIdParamSchema, request.params, reply);
+    if (params === null) return;
+    // TODO: implement
+    const result = validateResponse(emptyResponseSchema, {});
+    return reply.code(200).send(result);
   });
 }

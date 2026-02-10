@@ -11,6 +11,7 @@ import { decorateManagers } from "./ioc";
 
 import { healthCheck } from "./routes/health-check";
 import { staticRoutes } from "./routes/static";
+import apiRoutes from "./routes/api";
 import { seedMongo, hydrateRedis } from "./hydration";
 
 async function connectWithRetry(dbUrl: string): Promise<typeof Mongoose> {
@@ -74,12 +75,17 @@ export class Application {
     for (let i = 0; i < domainPaths.length; i++) {
       domainRoutes.push((await import(domainPaths[i])).default);
     }
-    const routes: Array<Route> = [
-      healthCheck,
-      staticRoutes,
-      ...domainRoutes,
-    ];
-    routes.forEach((route) => route(this.server));
+    healthCheck(this.server);
+    staticRoutes(this.server);
+    await this.server.register(apiRoutes, { prefix: "/api" });
+    await this.server.register(
+      async (instance) => {
+        for (const route of domainRoutes) {
+          route(instance as FastifyServer);
+        }
+      },
+      { prefix: "/api" }
+    );
   }
 
   private async connect(): Promise<typeof Mongoose> {
