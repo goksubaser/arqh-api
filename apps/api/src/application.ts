@@ -1,5 +1,6 @@
 import fastifyEnv from "@fastify/env";
 import Mongoose from "mongoose";
+import Redis from "ioredis";
 import fastifyStatic from "@fastify/static";
 import path from "path";
 import { glob } from "glob";
@@ -41,24 +42,26 @@ export class Application {
   constructor(private readonly server: FastifyServer) {}
 
   private async registerDecorators() {
-    await decorateManagers(this.server);
-    this.server.decorate("upAndRunning", true);
+    // Decorators (redis, managers, upAndRunning) registered in plugins
   }
 
   private async registerPlugins() {
-    this.server.register(fastifyEnv, getOptions()).ready((err) => {
+    await this.server.register(fastifyEnv, getOptions()).ready((err) => {
       if (err) {
-        this.server.log.error({
-          message: err,
-        });
+        this.server.log.error({ message: err });
         process.exit(1);
       }
-      this.server.log.info({
-        msg: "Configuration loaded",
-        config: this.server.config,
-      });
+      this.server.log.info({ msg: "Configuration loaded", config: this.server.config });
     });
-    this.server.register(fastifyStatic, {
+    const server = this.server;
+    await this.server.register(async () => {
+      const redis = new Redis(server.config.REDIS_URL);
+      await redis.ping();
+      server.decorate("redis", redis);
+      await decorateManagers(server);
+      server.decorate("upAndRunning", true);
+    });
+    await this.server.register(fastifyStatic, {
       root: path.join(__dirname, "../public"),
       serve: false,
     });
@@ -84,16 +87,16 @@ export class Application {
   }
 
   public async disconnect() {
+    this.server.redis?.disconnect();
     await Mongoose.disconnect();
   }
 
   public async init() {
     await this.registerRoutes();
     this.server.log.info("registered routes");
-    await this.registerDecorators();
-    this.server.log.info("registered decorators");
     await this.registerPlugins();
     this.server.log.info("registered plugins");
+    await this.registerDecorators();
     await this.server.ready();
     await this.connect();
     this.server.log.info("connected to db");

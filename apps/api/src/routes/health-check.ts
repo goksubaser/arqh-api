@@ -9,16 +9,16 @@ export const healthCheck = (server: FastifyServer) => {
           200: {
             type: "object",
             properties: {
-              message: {
-                type: "string",
-              },
+              message: { type: "string" },
+              redis: { type: "string" },
             },
           },
         },
       },
     },
-    (request, reply) => {
-      reply.code(200).send({ message: "running" });
+    async (request, reply) => {
+      const redisStatus = await server.redis.ping().then(() => "ok").catch(() => "error");
+      reply.code(200).send({ message: "running", redis: redisStatus });
     }
   );
 

@@ -1,4 +1,4 @@
-# TS - Fastify - Mongoose Boilerplate
+# Arqh Case
 
 Monorepo with TypeScript + Fastify + Mongoose backend and Next.js frontend.
 

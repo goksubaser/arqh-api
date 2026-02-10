@@ -2,9 +2,10 @@ import { FastifyEnvOptions } from "@fastify/env";
 
 const schema = {
   type: "object",
-  required: ["DB_URL"],
+  required: ["DB_URL", "REDIS_URL"],
   properties: {
     DB_URL: { type: "string" },
+    REDIS_URL: { type: "string" },
   },
 };
 
