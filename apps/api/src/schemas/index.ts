@@ -34,6 +34,9 @@ export const apiSchemas = {
   postSave: {
     response: { 200: z.object({ success: z.boolean() }) },
   },
+  postHydrate: {
+    response: { 200: z.object({ hydrated: z.boolean() }) },
+  },
 };
 
 export const vehicleSchema = z.object({

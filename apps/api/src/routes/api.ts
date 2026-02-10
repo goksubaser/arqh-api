@@ -1,8 +1,15 @@
 import { FastifyPluginAsync } from "fastify";
 import { apiSchemas } from "../schemas";
 import { validateRequest, validateResponse } from "../validation/validate";
+import { hydrateRedis } from "../hydration";
+import { FastifyServer } from "../interface/server";
 
 const apiRoutes: FastifyPluginAsync = async (server) => {
+  server.post("/hydrate", async (request, reply) => {
+    await hydrateRedis((request.server as FastifyServer).redis);
+    const result = validateResponse(apiSchemas.postHydrate.response[200], { hydrated: true });
+    return reply.code(200).send(result);
+  });
   server.get("/state", async (_request, reply) => {
     // TODO: implement - read from Redis
     const result = validateResponse(apiSchemas.getState.response[200], { assignments: [] });

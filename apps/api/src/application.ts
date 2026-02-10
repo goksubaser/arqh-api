@@ -48,6 +48,14 @@ export class Application {
   }
 
   private async registerPlugins() {
+    this.server.addHook("onRequest", async (request, reply) => {
+      reply.header("Access-Control-Allow-Origin", "http://localhost:3000");
+      reply.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+      reply.header("Access-Control-Allow-Headers", "Content-Type");
+      if (request.method === "OPTIONS") {
+        return reply.code(204).send();
+      }
+    });
     await this.server.register(fastifyEnv, getOptions()).ready((err) => {
       if (err) {
         this.server.log.error({ message: err });
