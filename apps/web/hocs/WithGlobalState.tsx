@@ -65,6 +65,8 @@ const Context = createContext<ContextType>({
 export const Provider = Context.Provider;
 export const useGlobalState = () => useContext(Context);
 
+const HYDRATE_KEY = "dispatch-hydrated";
+
 export const WithGlobalState: FunctionComponent<{children: ReactNode;}> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -85,9 +87,25 @@ export const WithGlobalState: FunctionComponent<{children: ReactNode;}> = ({ chi
 	}, []);
 
 	useEffect(() => {
-		fetchVehicles();
-		fetchOrders();
-		fetchAssignments();
+		let cancelled = false;
+		(async () => {
+			if (typeof window === "undefined") return;
+			const alreadyHydrated = sessionStorage.getItem(HYDRATE_KEY);
+			if (!alreadyHydrated) {
+				const hydrateRes = await fetch("/api/hydrate", { method: "POST" });
+				if (cancelled || !hydrateRes.ok) return;
+				sessionStorage.setItem(HYDRATE_KEY, "true");
+			}
+			if (cancelled) return;
+			await Promise.all([
+				fetchVehicles(),
+				fetchOrders(),
+				fetchAssignments(),
+			]);
+		})();
+		return () => {
+			cancelled = true;
+		};
 	}, []);
 
 	useEffect(() => {
