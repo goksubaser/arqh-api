@@ -36,5 +36,17 @@ services:
       redis:
         condition: service_healthy
 
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://localhost:5052
+    depends_on:
+      - api
+
 volumes:
   mongo_data:
