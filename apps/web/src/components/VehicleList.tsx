@@ -1,0 +1,129 @@
+"use client";
+
+import { FunctionComponent, useCallback } from "react";
+import type { Vehicle as VehicleType } from "types";
+import { useGlobalState, ActionKind } from "../../hocs/WithGlobalState";
+import { DRAG_TYPE_ORDER } from "./OrderList";
+
+const Vehicle: FunctionComponent<{ vehicle: VehicleType }> = ({ vehicle }) => {
+  const { state, dispatch } = useGlobalState();
+  const orderIds = state.assignments.find((a) => a.vehicle_id === vehicle.id)?.route ?? [];
+  const orders = state.orders.filter((order) => orderIds.includes(order.id));
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    if (!e.dataTransfer.types.includes(DRAG_TYPE_ORDER)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    e.currentTarget.classList.add("ring-2", "ring-blue-400", "ring-offset-2");
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.currentTarget.classList.remove("ring-2", "ring-blue-400", "ring-offset-2");
+  }, []);
+
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      e.currentTarget.classList.remove("ring-2", "ring-blue-400", "ring-offset-2");
+
+      const raw = e.dataTransfer.getData(DRAG_TYPE_ORDER);
+      if (!raw) return;
+      let orderId: string;
+      try {
+        const order = JSON.parse(raw);
+        orderId = order?.id;
+      } catch {
+        return;
+      }
+      if (!orderId) return;
+
+      const previousAssignments = state.assignments;
+      const nextAssignments = (() => {
+        const existing = previousAssignments.find((a) => a.vehicle_id === vehicle.id);
+        if (existing) {
+          return previousAssignments.map((a) =>
+            a.vehicle_id === vehicle.id
+              ? { ...a, route: [...a.route, orderId] }
+              : a
+          );
+        }
+        return [...previousAssignments, { vehicle_id: vehicle.id, route: [orderId] }];
+      })();
+
+      dispatch({ type: ActionKind.SetAssignments, payload: nextAssignments });
+
+      // try {
+      //   const res = await fetch("/api/assign", {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json" },
+      //     body: JSON.stringify({ orderId, vehicleId: vehicle.id }),
+      //   });
+      //   if (!res.ok) throw new Error("Assign failed");
+      // } catch {
+      //   dispatch({ type: ActionKind.SetAssignments, payload: previousAssignments });
+      // }
+    },
+    [vehicle.id, state.assignments, dispatch]
+  );
+
+  return (
+    <div className="flex w-68 h-[50%] flex-col rounded-lg border border-zinc-200 bg-zinc-50/50 dark:border-zinc-700 dark:bg-zinc-800/50">
+      <div className="border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+        <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
+          {vehicle.name}
+        </h3>
+        <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+          {vehicle.id}
+        </p>
+        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+          Capacity: {vehicle.capacity_kg} kg
+        </p>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Start: {vehicle.start_location.lat.toFixed(2)}, {vehicle.start_location.lng.toFixed(2)}
+        </p>
+      </div>
+
+      <div
+        className="min-h-[120px] flex-1 space-y-2 p-3 transition-colors"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        {orders.length === 0 ? (
+          <p className="rounded border border-dashed border-zinc-300 py-6 text-center text-sm text-zinc-400 dark:border-zinc-600 dark:text-zinc-500">
+            Drop orders here
+          </p>
+        ) : (
+          orders.map((order) => (
+            <div
+              key={order.id}
+              className="rounded border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm dark:border-zinc-600 dark:bg-zinc-800"
+            >
+              <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                {order.id}
+              </span>
+              <span className="ml-2 text-zinc-500 dark:text-zinc-400">
+                {order.weight_kg} kg
+              </span>
+              <span className="ml-2 text-zinc-500 dark:text-zinc-400">
+                {order.location.lat.toFixed(4)}, {order.location.lng.toFixed(4)}
+              </span>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+export const VehicleList: FunctionComponent = () => {
+  const { state } = useGlobalState();
+  
+  return (
+    <>
+      {state.vehicles.map((vehicle) => (
+        <Vehicle key={vehicle.id} vehicle={vehicle} />
+      ))}
+    </>
+  );
+}

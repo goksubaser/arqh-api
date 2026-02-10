@@ -29,7 +29,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <HydrateOnLaunch />
-        {children}
+        <div className="flex h-screen w-full">
+          {children}
+        </div>
       </body>
     </html>
   );
