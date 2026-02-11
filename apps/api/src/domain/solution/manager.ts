@@ -1,6 +1,7 @@
 import type Redis from "ioredis";
 import { injectable } from "tsyringe";
 import { SolutionService, type AssignParams, type AssignResult } from "./service";
+import { Solution } from "types";
 
 @injectable()
 class SolutionManager {
@@ -8,6 +9,10 @@ class SolutionManager {
 
   assignOrder(redis: Redis, params: AssignParams): Promise<AssignResult> {
     return this.solutionService.assignOrder(redis, params);
+  }
+
+  getState(redis: Redis): Promise<Solution> {
+    return this.solutionService.getState(redis);
   }
 }
 

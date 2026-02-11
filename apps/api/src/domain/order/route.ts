@@ -1,10 +1,10 @@
 import { FastifyServer } from "../../interface/server";
 import { orderSchema, orderIdParamSchema, orderListSchema, emptyResponseSchema } from "../../schemas";
 import { validateRequest, validateResponse } from "../../validation/validate";
-import { REDIS_ORDERS_KEY } from "../../hydration";
+import { REDIS_ORDERS_KEY } from "../../config/redis-keys";
 
 export default function routes(server: FastifyServer) {
-  server.get("/orders", async (request, reply) => {
+  server.get("/orders", async (_request, reply) => {
     try {
       const raw = await server.redis.get(REDIS_ORDERS_KEY);
       const data = raw ? JSON.parse(raw) : [];

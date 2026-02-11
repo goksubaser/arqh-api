@@ -1,14 +1,11 @@
 import fs from "fs";
 import path from "path";
+import { REDIS_SOLUTION_KEY, REDIS_VEHICLES_KEY, REDIS_ORDERS_KEY } from "./config/redis-keys";
 import { VehicleModel } from "./domain/vehicle/model";
 import { OrderModel } from "./domain/order/model";
 import { SolutionModel } from "./domain/solution/model";
 import { Solution } from "types";
 import type { Redis } from "ioredis";
-
-export const REDIS_SOLUTION_KEY = "dispatch:solution";
-export const REDIS_VEHICLES_KEY = "dispatch:vehicles";
-export const REDIS_ORDERS_KEY = "dispatch:orders";
 
 function getDataPath(filename: string): string {
   return path.join(__dirname, "../../../data", filename);

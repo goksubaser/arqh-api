@@ -4,8 +4,8 @@ import {
   REDIS_SOLUTION_KEY,
   REDIS_VEHICLES_KEY,
   REDIS_ORDERS_KEY,
-} from "../../hydration";
-import type { Assignment } from "types";
+} from "../../config/redis-keys";
+import type { Assignment, Solution } from "types";
 
 export interface AssignParams {
   orderId: string;
@@ -19,6 +19,12 @@ export type AssignResult =
 
 @injectable()
 export class SolutionService {
+
+  async getState(redis: Redis): Promise<Solution> {
+    const solutionRaw = await redis.get(REDIS_SOLUTION_KEY);
+    return solutionRaw ? JSON.parse(solutionRaw) : { assignments: [] };
+  }
+
   async assignOrder(redis: Redis, params: AssignParams): Promise<AssignResult> {
     const { orderId, vehicleId } = params;
     try {
