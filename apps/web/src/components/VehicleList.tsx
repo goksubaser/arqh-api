@@ -5,7 +5,13 @@ import type { Vehicle as VehicleType } from "types";
 import { useGlobalState, ActionKind } from "../../hocs/WithGlobalState";
 import { DRAG_TYPE_ORDER, Order } from "./OrderList";
 
-const Vehicle: FunctionComponent<{ vehicle: VehicleType }> = ({ vehicle }) => {
+interface VehicleProps {
+  vehicle: VehicleType;
+  onOrderEdit?: (order: import("types").Order) => void;
+  onVehicleEdit?: () => void;
+}
+
+const Vehicle: FunctionComponent<VehicleProps> = ({ vehicle, onOrderEdit, onVehicleEdit }) => {
   const { state, dispatch } = useGlobalState();
   const [dropping, setDropping] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
@@ -133,6 +139,15 @@ const Vehicle: FunctionComponent<{ vehicle: VehicleType }> = ({ vehicle }) => {
             </p>
           </div>
           <div className="flex flex-col shrink-0 gap-1">
+            {onVehicleEdit && (
+              <button
+                type="button"
+                onClick={onVehicleEdit}
+                className="rounded border border-zinc-300 bg-white px-2 py-1 text-xs font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
+              >
+                Edit
+              </button>
+            )}
             <button
               type="button"
               onClick={handleOptimize}
@@ -165,7 +180,7 @@ const Vehicle: FunctionComponent<{ vehicle: VehicleType }> = ({ vehicle }) => {
           </p>
         ) : (
           orders.map((order) => (
-            <Order key={order.id} order={order} />
+            <Order key={order.id} order={order} onEdit={onOrderEdit ? () => onOrderEdit(order) : undefined} />
           ))
         )}
       </div>
@@ -173,14 +188,41 @@ const Vehicle: FunctionComponent<{ vehicle: VehicleType }> = ({ vehicle }) => {
   );
 }
 
-export const VehicleList: FunctionComponent = () => {
+interface VehicleListProps {
+  onOpenOrderPopup?: (order: import("types").Order) => void;
+  onOpenVehiclePopup?: (vehicle?: import("types").Vehicle) => void;
+}
+
+export const VehicleList: FunctionComponent<VehicleListProps> = ({
+  onOpenOrderPopup,
+  onOpenVehiclePopup,
+}) => {
   const { state } = useGlobalState();
-  
+
   return (
-    <>
-      {state.vehicles.map((vehicle) => (
-        <Vehicle key={vehicle.id} vehicle={vehicle} />
-      ))}
-    </>
+    <div className="flex h-full flex-1 flex-col gap-4 overflow-auto p-4">
+      <div className="flex shrink-0 items-center justify-between">
+        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Vehicles</h2>
+        {onOpenVehiclePopup && (
+          <button
+            type="button"
+            onClick={() => onOpenVehiclePopup()}
+            className="rounded border border-zinc-300 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
+          >
+            Add vehicle
+          </button>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-4">
+        {state.vehicles.map((vehicle) => (
+          <Vehicle
+            key={vehicle.id}
+            vehicle={vehicle}
+            onOrderEdit={onOpenOrderPopup}
+            onVehicleEdit={onOpenVehiclePopup ? () => onOpenVehiclePopup(vehicle) : undefined}
+          />
+        ))}
+      </div>
+    </div>
   );
 }

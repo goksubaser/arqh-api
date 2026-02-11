@@ -18,6 +18,10 @@ class SolutionManager {
   clearVehicleRoute(redis: Redis, vehicleId: string): Promise<DropVehicleResult> {
     return this.solutionService.clearVehicleRoute(redis, vehicleId);
   }
+
+  removeVehicleFromAssignments(redis: Redis, vehicleId: string) {
+    return this.solutionService.removeVehicleFromAssignments(redis, vehicleId);
+  }
 }
 
 export default SolutionManager;

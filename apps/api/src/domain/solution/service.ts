@@ -7,6 +7,10 @@ import {
 } from "types";
 import type { Assignment, Solution } from "types";
 
+function isNotDeleted<T extends { deleted?: boolean }>(x: T): boolean {
+  return !x.deleted;
+}
+
 export interface AssignParams {
   orderId: string;
   vehicleId: string;
@@ -38,8 +42,8 @@ export class SolutionService {
         redis.get(REDIS_VEHICLES_KEY),
         redis.get(REDIS_ORDERS_KEY),
       ]);
-      const vehicles = vehiclesRaw ? JSON.parse(vehiclesRaw) : [];
-      const orders = ordersRaw ? JSON.parse(ordersRaw) : [];
+      const vehicles = (vehiclesRaw ? JSON.parse(vehiclesRaw) : []).filter(isNotDeleted);
+      const orders = (ordersRaw ? JSON.parse(ordersRaw) : []).filter(isNotDeleted);
       const vehicleIds = new Set((vehicles as { id: string }[]).map((v) => v.id));
       const orderIds = new Set((orders as { id: string }[]).map((o) => o.id));
 
@@ -87,7 +91,7 @@ export class SolutionService {
         redis.get(REDIS_SOLUTION_KEY),
         redis.get(REDIS_VEHICLES_KEY),
       ]);
-      const vehicles = vehiclesRaw ? JSON.parse(vehiclesRaw) : [];
+      const vehicles = (vehiclesRaw ? JSON.parse(vehiclesRaw) : []).filter(isNotDeleted);
       const vehicleIds = new Set((vehicles as { id: string }[]).map((v) => v.id));
       if (!vehicleIds.has(vehicleId)) {
         return { ok: false, statusCode: 400, error: "Invalid vehicleId", vehicleId };
@@ -137,5 +141,13 @@ export class SolutionService {
       }
     }
     return { assignments };
+  }
+
+  async removeVehicleFromAssignments(redis: Redis, vehicleId: string) {
+    const solutionRaw = await redis.get(REDIS_SOLUTION_KEY);
+    const solution = solutionRaw ? JSON.parse(solutionRaw) : { assignments: [] };
+    const assignments = Array.isArray(solution.assignments) ? solution.assignments : [];
+    const filteredAssignments = assignments.filter((a: Assignment) => a.vehicle_id !== vehicleId);
+    await redis.set(REDIS_SOLUTION_KEY, JSON.stringify({ assignments: filteredAssignments }));
   }
 }

@@ -5,4 +5,5 @@ export interface Vehicle {
   name: string;
   capacity_kg: number;
   start_location: Location;
+  deleted?: boolean;
 }

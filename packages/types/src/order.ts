@@ -5,4 +5,5 @@ export interface Order {
   weight_kg: number;
   location: Location;
   service_time_min: number;
+  deleted?: boolean;
 }

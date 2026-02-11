@@ -10,6 +10,7 @@ const OrderSchema = new Schema<Order>(
       lng: { type: Number, required: true },
     },
     service_time_min: { type: Number, required: true },
+    deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

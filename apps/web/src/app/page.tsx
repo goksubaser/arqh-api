@@ -1,12 +1,10 @@
-import { VehicleList } from "@/components/VehicleList";
+import { DispatchPage } from "@/components/DispatchPage";
 import { WithGlobalState } from "../../hocs/WithGlobalState";
-import { OrderList } from "../components/OrderList";
 
 export default function Home() {
   return (
     <WithGlobalState>
-      <OrderList />
-      <VehicleList />
+      <DispatchPage />
     </WithGlobalState>
   );
 }

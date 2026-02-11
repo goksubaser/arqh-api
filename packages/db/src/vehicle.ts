@@ -10,6 +10,7 @@ const VehicleSchema = new Schema<Vehicle>(
       lat: { type: Number, required: true },
       lng: { type: Number, required: true },
     },
+    deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
