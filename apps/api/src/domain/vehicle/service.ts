@@ -1,11 +1,12 @@
+import { Redis } from "ioredis";
 import { injectable } from "tsyringe";
+import { REDIS_VEHICLES_KEY } from "../../config/redis-keys";
 import { Vehicle } from "types";
-import { VehicleModel } from "./model";
-import { Service } from "../../service";
 
 @injectable()
-export class VehicleService extends Service<Vehicle, typeof VehicleModel> {
-  constructor() {
-    super(VehicleModel);
+export class VehicleService {
+  async getState(redis: Redis): Promise<Vehicle[]> {
+    const vehiclesRaw = await redis.get(REDIS_VEHICLES_KEY);
+    return vehiclesRaw ? JSON.parse(vehiclesRaw) : [];
   }
 }

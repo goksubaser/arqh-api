@@ -6,8 +6,7 @@ import { REDIS_VEHICLES_KEY } from "../../config/redis-keys";
 export default function routes(server: FastifyServer) {
   server.get("/vehicles", async (_request, reply) => {
     try {
-      const raw = await server.redis.get(REDIS_VEHICLES_KEY);
-      const data = raw ? JSON.parse(raw) : [];
+      const data = await server.vehicleManager.getState(server.redis);
       const result = validateResponse(vehicleListSchema, data);
       return reply.code(200).send(result);
     } catch (err) {
