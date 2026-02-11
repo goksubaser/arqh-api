@@ -25,6 +25,12 @@ export const apiSchemas = {
     }),
     response: { 200: z.object({}) },
   },
+  postDropVehicle: {
+    body: z.object({
+      vehicleId: z.string(),
+    }),
+    response: { 200: z.object({}) },
+  },
   postOptimize: {
     body: z.object({
       vehicleId: z.string(),

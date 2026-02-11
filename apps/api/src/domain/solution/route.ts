@@ -29,4 +29,20 @@ export default function routes(server: FastifyServer) {
         : { error };
     return reply.code(statusCode).send(payload);
   });
+
+  server.post("/drop-vehicle", async (request, reply) => {
+    const body = validateRequest(apiSchemas.postDropVehicle.body, request.body, reply);
+    if (body === null) return;
+    const result = await server.solutionManager.clearVehicleRoute(server.redis, body.vehicleId);
+    if (result.ok) {
+      const response = validateResponse(apiSchemas.postDropVehicle.response[200], {});
+      return reply.code(200).send(response);
+    }
+    const { statusCode, error } = result;
+    const payload =
+      result.statusCode === 400 && "vehicleId" in result
+        ? { error, vehicleId: result.vehicleId }
+        : { error };
+    return reply.code(statusCode).send(payload);
+  });
 }

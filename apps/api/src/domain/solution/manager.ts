@@ -1,6 +1,6 @@
 import type Redis from "ioredis";
 import { injectable } from "tsyringe";
-import { SolutionService, type AssignParams, type AssignResult } from "./service";
+import { SolutionService, type AssignParams, type AssignResult, type DropVehicleResult } from "./service";
 import { Solution } from "types";
 
 @injectable()
@@ -13,6 +13,10 @@ class SolutionManager {
 
   getState(redis: Redis): Promise<Solution> {
     return this.solutionService.getState(redis);
+  }
+
+  clearVehicleRoute(redis: Redis, vehicleId: string): Promise<DropVehicleResult> {
+    return this.solutionService.clearVehicleRoute(redis, vehicleId);
   }
 }
 
