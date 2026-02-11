@@ -121,7 +121,7 @@ const Vehicle: FunctionComponent<VehicleProps> = ({ vehicle, onOrderEdit, onVehi
   }, [vehicle.id, orders.length]);
 
   return (
-    <div className="flex w-64 h-[50%] flex-col rounded-lg border border-zinc-200 bg-zinc-50/50 dark:border-zinc-700 dark:bg-zinc-800/50">
+    <div className="flex w-64 shrink-0 h-full flex-col rounded-lg border border-zinc-200 bg-zinc-50/50 dark:border-zinc-700 dark:bg-zinc-800/50">
       <div className="border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
@@ -213,7 +213,7 @@ export const VehicleList: FunctionComponent<VehicleListProps> = ({
           </button>
         )}
       </div>
-      <div className="flex flex-wrap gap-4">
+      <div className="h-full flex flex-row gap-4 overflow-x-auto">
         {state.vehicles.map((vehicle) => (
           <Vehicle
             key={vehicle.id}

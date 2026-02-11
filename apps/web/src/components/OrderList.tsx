@@ -141,7 +141,7 @@ export const OrderList: FunctionComponent<OrderListProps> = ({ onOpenOrderPopup 
             {state.unassignedOrders.length} order{state.unassignedOrders.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <div className="flex shrink-0 gap-1">
+        <div className="flex flex-col shrink-0 gap-1">
           <button
             type="button"
             onClick={() => onOpenOrderPopup?.()}
@@ -149,14 +149,14 @@ export const OrderList: FunctionComponent<OrderListProps> = ({ onOpenOrderPopup 
           >
             Add order
           </button>
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={saving}
-          className="shrink-0 rounded border border-zinc-300 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
-        >
-          {saving ? "Saving…" : "Save Plan"}
-        </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="shrink-0 rounded border border-zinc-300 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
+          >
+            {saving ? "Saving…" : "Save Plan"}
+          </button>
         </div>
       </header>
       <ul

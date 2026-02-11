@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import path from "path";
 
 dotenv.config({
-  path: path.join(__dirname, "../../", `${process.env.NODE_ENV || "development"}.env`),
+  path: path.join(__dirname, "..", `${process.env.NODE_ENV || "development"}.env`),
 });
 
 export const config = {

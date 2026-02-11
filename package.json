@@ -15,7 +15,7 @@
     "dev:web": "npm run dev -w web",
     "dev:worker": "npm run dev -w worker",
     "docker": "docker compose up --build",
-    "docker:db": "docker compose up -d mongo redis worker",
+    "docker:db": "docker compose up -d mongo redis",
     "docker:down": "docker compose down -v --rmi all",
     "build": "npm run build --workspaces --if-present",
     "build:api": "npm run build -w api",
