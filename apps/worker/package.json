@@ -1,0 +1,25 @@
+{
+  "name": "worker",
+  "version": "1.0.0",
+  "description": "Background worker for dispatch tasks",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "npm run build && concurrently \"npm run build:dev\" \"npm run start:dev\"",
+    "build:dev": "tsc --watch",
+    "prebuild": "npm run build -w types",
+    "build": "tsc",
+    "start:dev": "NODE_ENV=development node --watch ./dist/index.js",
+    "start": "NODE_ENV=production node ./dist/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "ioredis": "^5.9.2",
+    "mongoose": "^8.0.3",
+    "types": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  }
+}

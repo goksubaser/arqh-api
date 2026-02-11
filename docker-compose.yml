@@ -49,5 +49,19 @@ services:
     depends_on:
       - api
 
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      NODE_ENV: production
+      DB_URL: mongodb://mongo:27017/app
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   mongo_data:

@@ -3,6 +3,7 @@ import { apiSchemas } from "../schemas";
 import { validateRequest, validateResponse } from "../validation/validate";
 import { hydrateRedis } from "../hydration";
 import { FastifyServer } from "../interface/server";
+import { REDIS_SAVE_STREAM } from "../config/redis-keys";
 
 const apiRoutes: FastifyPluginAsync = async (server) => {
   server.post("/hydrate", async (request, reply) => {
@@ -19,10 +20,16 @@ const apiRoutes: FastifyPluginAsync = async (server) => {
     return reply.code(200).send(result);
   });
 
-  server.post("/save", async (_request, reply) => {
-    // TODO: implement - dump Redis to MongoDB
-    const result = validateResponse(apiSchemas.postSave.response[200], { success: false });
-    return reply.code(200).send(result);
+  server.post("/save", async (request, reply) => {
+    try {
+      const redis = (request.server as FastifyServer).redis;
+      await redis.xadd(REDIS_SAVE_STREAM, "*", "task", "save", "ts", String(Date.now()));
+      const result = validateResponse(apiSchemas.postSave.response[200], { success: true });
+      return reply.code(202).send(result);
+    } catch (err) {
+      request.server.log.error(err);
+      return reply.code(500).send({ error: "Failed to queue save" });
+    }
   });
 };
 

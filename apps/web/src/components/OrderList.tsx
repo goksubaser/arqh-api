@@ -45,6 +45,21 @@ export { DRAG_TYPE_ORDER };
 export const OrderList: FunctionComponent = () => {
   const { state, dispatch } = useGlobalState();
   const [dropTargetActive, setDropTargetActive] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = useCallback(async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/save", { method: "POST" });
+      if (!res.ok) throw new Error("Save failed");
+      const data = await res.json();
+      if (!data.success) throw new Error("Save failed");
+    } catch (err) {
+      console.error("Save failed:", err);
+    } finally {
+      setSaving(false);
+    }
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     if (!e.dataTransfer.types.includes(DRAG_TYPE_ORDER)) return;
@@ -99,13 +114,23 @@ export const OrderList: FunctionComponent = () => {
 
   return (
     <aside className="flex h-full w-72 shrink-0 flex-col border-r border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50">
-      <header className="shrink-0 border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
-        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-          Unassigned orders
-        </h2>
-        <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-          {state.unassignedOrders.length} order{state.unassignedOrders.length !== 1 ? "s" : ""}
-        </p>
+      <header className="flex shrink-0 items-start justify-between gap-2 border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+            Unassigned orders
+          </h2>
+          <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+            {state.unassignedOrders.length} order{state.unassignedOrders.length !== 1 ? "s" : ""}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="shrink-0 rounded border border-zinc-300 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
+        >
+          {saving ? "Saving…" : "Save Plan"}
+        </button>
       </header>
       <ul
         className={`flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2 transition-colors ${dropTargetActive ? "ring-2 ring-inset ring-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/20" : ""}`}

@@ -6,19 +6,23 @@
   "workspaces": [
     "apps/api",
     "apps/web",
+    "apps/worker",
     "packages/types"
   ],
   "scripts": {
     "dev:api": "npm run dev -w api",
     "dev:web": "npm run dev -w web",
+    "dev:worker": "npm run dev -w worker",
     "docker": "docker compose up --build",
-    "docker:db": "docker compose up -d mongo redis",
-    "docker:down": "docker compose down -v",
+    "docker:db": "docker compose up -d mongo redis worker",
+    "docker:down": "docker compose down -v --rmi all",
     "build": "npm run build --workspaces --if-present",
     "build:api": "npm run build -w api",
     "build:web": "npm run build -w web",
+    "build:worker": "npm run build -w worker",
     "start:api": "npm run start -w api",
     "start:web": "npm run start -w web",
+    "start:worker": "npm run start -w worker",
     "lint": "npm run lint --workspaces --if-present"
   },
   "keywords": [],
