@@ -1,7 +1,7 @@
 import { FastifyServer } from "../../interface/server";
 import { orderSchema, orderIdParamSchema, orderListSchema, emptyResponseSchema } from "../../schemas";
 import { validateRequest, validateResponse } from "../../validation/validate";
-import { REDIS_ORDERS_KEY } from "../../config/redis-keys";
+import { REDIS_ORDERS_KEY } from "types";
 
 export default function routes(server: FastifyServer) {
   server.get("/orders", async (_request, reply) => {

@@ -1,9 +1,9 @@
 import fs from "fs";
 import path from "path";
-import { REDIS_SOLUTION_KEY, REDIS_VEHICLES_KEY, REDIS_ORDERS_KEY } from "./config/redis-keys";
-import { VehicleModel } from "./domain/vehicle/model";
-import { OrderModel } from "./domain/order/model";
-import { SolutionModel } from "./domain/solution/model";
+import { REDIS_SOLUTION_KEY, REDIS_VEHICLES_KEY, REDIS_ORDERS_KEY } from "types";
+import { VehicleModel } from "db";
+import { OrderModel } from "db";
+import { SolutionModel } from "db";
 import { Solution } from "types";
 import type { Redis } from "ioredis";
 

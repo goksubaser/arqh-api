@@ -1,6 +1,6 @@
 import { Redis } from "ioredis";
 import { injectable } from "tsyringe";
-import { REDIS_VEHICLES_KEY } from "../../config/redis-keys";
+import { REDIS_VEHICLES_KEY } from "types";
 import { Vehicle } from "types";
 
 @injectable()

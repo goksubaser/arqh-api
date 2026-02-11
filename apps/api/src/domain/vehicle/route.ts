@@ -1,7 +1,6 @@
 import { FastifyServer } from "../../interface/server";
 import { vehicleSchema, vehicleIdParamSchema, vehicleListSchema, emptyResponseSchema } from "../../schemas";
 import { validateRequest, validateResponse } from "../../validation/validate";
-import { REDIS_VEHICLES_KEY } from "../../config/redis-keys";
 
 export default function routes(server: FastifyServer) {
   server.get("/vehicles", async (_request, reply) => {

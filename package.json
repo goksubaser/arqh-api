@@ -7,7 +7,8 @@
     "apps/api",
     "apps/web",
     "apps/worker",
-    "packages/types"
+    "packages/types",
+    "packages/db"
   ],
   "scripts": {
     "dev:api": "npm run dev -w api",

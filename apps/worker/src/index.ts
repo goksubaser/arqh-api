@@ -5,7 +5,7 @@ import {
   REDIS_SAVE_STREAM,
   REDIS_SAVE_CONSUMER_GROUP,
   REDIS_SAVE_CONSUMER,
-} from "./redis-keys";
+} from "types";
 import { runSaveTask } from "./tasks/save";
 
 const BLOCK_MS = 5000;

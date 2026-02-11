@@ -4,7 +4,7 @@ import {
   REDIS_SOLUTION_KEY,
   REDIS_VEHICLES_KEY,
   REDIS_ORDERS_KEY,
-} from "../../config/redis-keys";
+} from "types";
 import type { Assignment, Solution } from "types";
 
 export interface AssignParams {

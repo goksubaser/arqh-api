@@ -3,7 +3,7 @@ import { apiSchemas } from "../schemas";
 import { validateRequest, validateResponse } from "../validation/validate";
 import { hydrateRedis } from "../hydration";
 import { FastifyServer } from "../interface/server";
-import { REDIS_SAVE_STREAM } from "../config/redis-keys";
+import { REDIS_SAVE_STREAM } from "types";
 
 const apiRoutes: FastifyPluginAsync = async (server) => {
   server.post("/hydrate", async (request, reply) => {

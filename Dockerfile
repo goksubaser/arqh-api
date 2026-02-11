@@ -12,8 +12,8 @@ COPY data ./data
 # Install all dependencies (workspace hoisting)
 RUN npm ci
 
-# Build types and api
-RUN npm run build -w types && npm run build -w api
+# Build types, db, and api
+RUN npm run build -w types && npm run build -w db && npm run build -w api
 
 # Production stage
 FROM node:20-alpine AS runner
@@ -25,6 +25,8 @@ COPY --from=builder /app/package.json package.json
 COPY --from=builder /app/node_modules node_modules
 COPY --from=builder /app/packages/types/dist packages/types/dist
 COPY --from=builder /app/packages/types/package.json packages/types/package.json
+COPY --from=builder /app/packages/db/dist packages/db/dist
+COPY --from=builder /app/packages/db/package.json packages/db/package.json
 COPY --from=builder /app/apps/api/dist apps/api/dist
 COPY --from=builder /app/apps/api/package.json apps/api/package.json
 COPY --from=builder /app/apps/api/public apps/api/public

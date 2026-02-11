@@ -3,10 +3,8 @@ import {
   REDIS_SOLUTION_KEY,
   REDIS_VEHICLES_KEY,
   REDIS_ORDERS_KEY,
-} from "../redis-keys";
-import { VehicleModel } from "../models/vehicle";
-import { OrderModel } from "../models/order";
-import { SolutionModel } from "../models/solution";
+} from "types";
+import { VehicleModel, OrderModel, SolutionModel } from "db";
 import type { Solution, Vehicle, Order } from "types";
 
 export async function runSaveTask(redis: Redis): Promise<void> {
