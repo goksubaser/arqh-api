@@ -12,14 +12,6 @@ const apiRoutes: FastifyPluginAsync = async (server) => {
     return reply.code(200).send(result);
   });
 
-  server.post("/optimize", async (request, reply) => {
-    const body = validateRequest(apiSchemas.postOptimize.body, request.body, reply);
-    if (body === null) return;
-    // TODO: implement - Redis Streams
-    const result = validateResponse(apiSchemas.postOptimize.response[200], {});
-    return reply.code(200).send(result);
-  });
-
   server.post("/save", async (request, reply) => {
     try {
       const redis = (request.server as FastifyServer).redis;

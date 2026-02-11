@@ -112,6 +112,15 @@ export const WithGlobalState: FunctionComponent<{children: ReactNode;}> = ({ chi
 		const unassignedOrders = state.orders.filter((order) => !state.assignments.some((assignment) => assignment.route.includes(order.id)));
 		dispatch({ type: ActionKind.SetUnassignedOrders, payload: unassignedOrders });
 	}, [state.orders, state.assignments]);
+
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+		const es = new EventSource("/api/optimization-events");
+		es.onmessage = () => fetchAssignments();
+		es.onerror = () => es.close();
+		return () => es.close();
+	}, [fetchAssignments]);
+
   return (
     <Provider value={{ state, dispatch }}>{children}</Provider>
   );

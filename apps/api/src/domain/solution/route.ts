@@ -1,6 +1,7 @@
 import { FastifyServer } from "../../interface/server";
 import { validateRequest, validateResponse } from "../../validation/validate";
 import { apiSchemas } from "../../schemas";
+import { REDIS_EVENTS_STREAM, EVENT_OPTIMIZE_ROUTE } from "types";
 
 export default function routes(server: FastifyServer) {
   server.get("/state", async (request, reply) => {
@@ -28,6 +29,33 @@ export default function routes(server: FastifyServer) {
         ? { error, ...("orderId" in result && { orderId: result.orderId }), ...("vehicleId" in result && { vehicleId: result.vehicleId }) }
         : { error };
     return reply.code(statusCode).send(payload);
+  });
+
+  server.get("/optimization-events", async (_request, reply) => {
+    reply.hijack();
+    reply.raw.writeHead(200, {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+      "Access-Control-Allow-Origin": server.config.WEB_URL,
+    });
+    const client = { write: (data: string) => reply.raw.write(data) };
+    server.optimizationEventClients.add(client);
+    reply.raw.on("close", () => server.optimizationEventClients.delete(client));
+  });
+
+  server.post("/optimize", async (request, reply) => {
+    const body = validateRequest(apiSchemas.postOptimize.body, request.body, reply);
+    if (body === null) return;
+    try {
+      const redis = server.redis;
+      await redis.xadd(REDIS_EVENTS_STREAM, "*", "event", EVENT_OPTIMIZE_ROUTE, "vehicleId", body.vehicleId, "ts", String(Date.now()));
+      const result = validateResponse(apiSchemas.postOptimize.response[200], { success: true });
+      return reply.code(202).send(result);
+    } catch (err) {
+      request.server.log.error(err);
+      return reply.code(500).send({ error: "Failed to queue optimize" });
+    }
   });
 
   server.post("/drop-vehicle", async (request, reply) => {

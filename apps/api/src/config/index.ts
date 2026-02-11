@@ -6,6 +6,7 @@ const schema = {
   properties: {
     DB_URL: { type: "string" },
     REDIS_URL: { type: "string" },
+    WEB_URL: { type: "string" },
   },
 };
 

@@ -7,6 +7,7 @@ import {
   REDIS_SAVE_CONSUMER,
 } from "types";
 import { runSaveTask } from "./tasks/save";
+import { ensureOptimizeConsumerGroup, processOptimizeEvents } from "./tasks/optimize";
 
 const BLOCK_MS = 5000;
 
@@ -48,7 +49,7 @@ async function processSaveMessages(redis: Redis): Promise<void> {
 
   for (const [, messages] of replies) {
     for (const [id, fields] of messages) {
-      const task = fields[1]; // fields are [key, value, key, value, ...]
+      const task = fields[1];
       if (task === "save") {
         try {
           await runSaveTask(redis);
@@ -72,16 +73,31 @@ async function run(): Promise<void> {
 
   await connectMongo();
   await ensureConsumerGroup(redis);
+  await ensureOptimizeConsumerGroup(redis);
 
   console.log("[worker] Listening for tasks...");
-  while (true) {
-    try {
-      await processSaveMessages(redis);
-    } catch (err) {
-      console.error("[worker] Loop error:", err);
-      await new Promise((r) => setTimeout(r, 1000));
+  const runSaveLoop = async () => {
+    while (true) {
+      try {
+        await processSaveMessages(redis);
+      } catch (err) {
+        console.error("[worker] Save loop error:", err);
+        await new Promise((r) => setTimeout(r, 1000));
+      }
     }
-  }
+  };
+  const runOptimizeLoop = async () => {
+    while (true) {
+      try {
+        await processOptimizeEvents(redis);
+      } catch (err) {
+        console.error("[worker] Optimize loop error:", err);
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+    }
+  };
+  runSaveLoop();
+  runOptimizeLoop();
 }
 
 run().catch((err) => {

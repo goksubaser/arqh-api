@@ -35,7 +35,7 @@ export const apiSchemas = {
     body: z.object({
       vehicleId: z.string(),
     }),
-    response: { 200: z.object({}) },
+    response: { 200: z.object({ success: z.boolean() }) },
   },
   postSave: {
     response: { 200: z.object({ success: z.boolean() }) },

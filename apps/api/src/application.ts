@@ -13,6 +13,7 @@ import { healthCheck } from "./routes/health-check";
 import { staticRoutes } from "./routes/static";
 import apiRoutes from "./routes/api";
 import { seedMongo, hydrateRedis } from "./hydration";
+import { startResultsConsumer } from "./results-consumer";
 
 async function connectWithRetry(dbUrl: string): Promise<typeof Mongoose> {
   const maxRetries = 10;
@@ -49,9 +50,9 @@ export class Application {
 
   private async registerPlugins() {
     this.server.addHook("onRequest", async (request, reply) => {
-      reply.header("Access-Control-Allow-Origin", "http://localhost:3000");
+      reply.header("Access-Control-Allow-Origin", this.server.config.WEB_URL);
       reply.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-      reply.header("Access-Control-Allow-Headers", "Content-Type");
+      reply.header("Access-Control-Allow-Headers", "Content-Type, Cache-Control");
       if (request.method === "OPTIONS") {
         return reply.code(204).send();
       }
@@ -64,12 +65,29 @@ export class Application {
       this.server.log.info({ msg: "Configuration loaded", config: this.server.config });
     });
     const server = this.server;
+    const optimizationClients = new Set<{ write: (data: string) => void }>();
+    const broadcastOptimizationResult = (vehicleId: string) => {
+      const msg = `data: ${JSON.stringify({ vehicleId })}\n\n`;
+      for (const client of optimizationClients) {
+        try {
+          client.write(msg);
+        } catch {
+          optimizationClients.delete(client);
+        }
+      }
+    };
     await this.server.register(async () => {
       const redis = new Redis(server.config.REDIS_URL);
       await redis.ping();
       server.decorate("redis", redis);
+      server.decorate("optimizationEventClients", optimizationClients);
+      server.decorate("broadcastOptimizationResult", broadcastOptimizationResult);
       await decorateManagers(server);
       server.decorate("upAndRunning", true);
+      const resultsConsumerRedis = new Redis(server.config.REDIS_URL);
+      await resultsConsumerRedis.ping();
+      server.decorate("resultsConsumerRedis", resultsConsumerRedis);
+      startResultsConsumer(resultsConsumerRedis, broadcastOptimizationResult);
     });
     await this.server.register(fastifyStatic, {
       root: path.join(__dirname, "../public"),
@@ -103,6 +121,7 @@ export class Application {
 
   public async disconnect() {
     this.server.redis?.disconnect();
+    (this.server as any).resultsConsumerRedis?.disconnect();
     await Mongoose.disconnect();
   }
 

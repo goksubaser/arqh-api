@@ -8,6 +8,7 @@ export interface ServerConfig {
   NODE_ENV: string;
   DB_URL: string;
   REDIS_URL: string;
+  WEB_URL: string;
 }
 
 export interface FastifyServer
@@ -17,4 +18,6 @@ export interface FastifyServer
   redis: Redis;
   vehicleManager: VehicleManager;
   solutionManager: SolutionManager;
+  optimizationEventClients: Set<{ write: (data: string) => void }>;
+  broadcastOptimizationResult: (vehicleId: string) => void;
 }

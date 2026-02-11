@@ -8,8 +8,9 @@ import { DRAG_TYPE_ORDER, Order } from "./OrderList";
 const Vehicle: FunctionComponent<{ vehicle: VehicleType }> = ({ vehicle }) => {
   const { state, dispatch } = useGlobalState();
   const [dropping, setDropping] = useState(false);
+  const [optimizing, setOptimizing] = useState(false);
   const orderIds = state.assignments.find((a) => a.vehicle_id === vehicle.id)?.route ?? [];
-  const orders = state.orders.filter((order) => orderIds.includes(order.id));
+  const orders = state.orders.filter((order) => orderIds.includes(order.id)).sort((a, b) => orderIds.indexOf(a.id) - orderIds.indexOf(b.id));
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     if (!e.dataTransfer.types.includes(DRAG_TYPE_ORDER)) return;
@@ -94,8 +95,27 @@ const Vehicle: FunctionComponent<{ vehicle: VehicleType }> = ({ vehicle }) => {
     }
   }, [vehicle.id, orders.length, state.assignments, dispatch]);
 
+  const handleOptimize = useCallback(async () => {
+    if (orders.length < 2) return;
+    setOptimizing(true);
+    try {
+      const res = await fetch("/api/optimize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vehicleId: vehicle.id }),
+      });
+      if (!res.ok) throw new Error("Optimize failed");
+      const data = await res.json();
+      if (!data.success) throw new Error("Optimize failed");
+    } catch (err) {
+      console.error("Optimize failed:", err);
+    } finally {
+      setOptimizing(false);
+    }
+  }, [vehicle.id, orders.length]);
+
   return (
-    <div className="flex w-60 h-[50%] flex-col rounded-lg border border-zinc-200 bg-zinc-50/50 dark:border-zinc-700 dark:bg-zinc-800/50">
+    <div className="flex w-64 h-[50%] flex-col rounded-lg border border-zinc-200 bg-zinc-50/50 dark:border-zinc-700 dark:bg-zinc-800/50">
       <div className="border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
@@ -112,14 +132,24 @@ const Vehicle: FunctionComponent<{ vehicle: VehicleType }> = ({ vehicle }) => {
               Start: {vehicle.start_location.lat.toFixed(2)}, {vehicle.start_location.lng.toFixed(2)}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleDropAll}
-            disabled={orders.length === 0 || dropping}
-            className="shrink-0 rounded border border-zinc-300 bg-white px-2 py-1 text-xs font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
-          >
-            {dropping ? "Dropping…" : "Drop all"}
-          </button>
+          <div className="flex flex-col shrink-0 gap-1">
+            <button
+              type="button"
+              onClick={handleOptimize}
+              disabled={orders.length < 2 || optimizing}
+              className="rounded border border-zinc-300 bg-white px-2 py-1 text-xs font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
+            >
+              {optimizing ? "Optimizing…" : "Optimize"}
+            </button>
+            <button
+              type="button"
+              onClick={handleDropAll}
+              disabled={orders.length === 0 || dropping}
+              className="rounded border border-zinc-300 bg-white px-2 py-1 text-xs font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
+            >
+              {dropping ? "Dropping…" : "Drop all"}
+            </button>
+          </div>
         </div>
       </div>
 
