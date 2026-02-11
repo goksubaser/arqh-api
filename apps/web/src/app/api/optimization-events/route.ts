@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
   const response = await fetch(`${api.url}/api/optimization-events`, {
+    signal: req.signal,
     headers: {
       Accept: "text/event-stream",
       ...(req.headers.get("Last-Event-ID") && {
