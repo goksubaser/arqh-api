@@ -51,7 +51,10 @@ export const MasterDataPopup: FunctionComponent<MasterDataPopupProps> = ({
   const handleLocationChange = useCallback(
     (field: "location" | "start_location", coord: "lat" | "lng", value: number) => {
       setForm((prev) => {
-        const loc = (prev as any)[field] ?? { lat: 0, lng: 0 };
+        const loc =
+          field === "location"
+            ? (prev as Order).location ?? { lat: 0, lng: 0 }
+            : (prev as Vehicle).start_location ?? { lat: 0, lng: 0 };
         return { ...prev, [field]: { ...loc, [coord]: value } };
       });
     },

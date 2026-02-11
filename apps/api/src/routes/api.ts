@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from "fastify";
 import { apiSchemas } from "../schemas";
-import { validateRequest, validateResponse } from "../validation/validate";
+import { validateResponse } from "../validation/validate";
 import { hydrateRedis } from "../hydration";
 import { FastifyServer } from "../interface/server";
 import { REDIS_SAVE_STREAM } from "types";

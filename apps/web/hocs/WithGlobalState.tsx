@@ -34,6 +34,7 @@ export enum ActionKind {
 
 interface Action {
   type: ActionKind;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload: any;
 }
 
@@ -106,7 +107,7 @@ export const WithGlobalState: FunctionComponent<{children: ReactNode;}> = ({ chi
 		return () => {
 			cancelled = true;
 		};
-	}, []);
+	}, [fetchVehicles, fetchOrders, fetchAssignments]);
 
 	useEffect(() => {
 		const unassignedOrders = state.orders.filter((order) => !state.assignments.some((assignment) => assignment.route.includes(order.id)));
